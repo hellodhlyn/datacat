@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Datacat",
+  "version": "1.0.0",
+  "icons": {
+    "48": "icons/cat.svg"
+  },
+  "browser_action": {
+    "browser_style": true,
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "48": "icons/cat.svg"
+    }
+  },
+  "permissions": [
+    "tabs"
+  ]
+}

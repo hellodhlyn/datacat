@@ -1,0 +1,31 @@
+body {
+  width: 400px;
+  padding: 20px;
+}
+
+p, h3 {
+  margin: 10px 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+.button {
+  margin: 10px 0;
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background-color: #673ab7;
+  color: #ffffff;
+  font-weight: bolder;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.container:not(.active) {
+  display: none;
+}

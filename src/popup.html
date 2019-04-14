@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <div class="error container">
+      <p id="error-msg"></p>
+      <a href="https://app.datadoghq.com/event/stream">
+        <div class="button">GO TO DATADOG</div>
+      </a>
+    </div>
+
+    <div class="selector container active">
+      <h3>Time Range</h3>
+      <p>FROM</p>
+      <div id="from-dt" class="dt-selector">
+        <input type="text" id="datetime" />
+      </div>
+
+      <p>TO</p>
+      <div id="to-dt" class="dt-selector">
+        <input type="text" id="datetime" />
+      </div>
+
+      <div id="apply-btn" class="button">APPLY CUSTOM RANGE</div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
