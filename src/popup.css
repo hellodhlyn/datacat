@@ -1,6 +1,6 @@
 body {
   width: 400px;
-  padding: 20px;
+  overflow-x: hidden;
 }
 
 p, h3 {
@@ -26,6 +26,19 @@ a {
   cursor: pointer;
 }
 
+.container {
+  padding: 20px;
+}
+
 .container:not(.active) {
   display: none;
+}
+
+.favorite-item {
+  color: #1c7ed6;
+}
+
+.favorite-item:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }

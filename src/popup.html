@@ -13,20 +13,36 @@
     </div>
 
     <div class="selector container active">
-      <h3>Time Range</h3>
+      <h3>시간대</h3>
       <p>FROM</p>
-      <div id="from-dt" class="dt-selector">
+      <div id="from-dt">
         <input type="text" id="datetime" />
       </div>
 
       <p>TO</p>
-      <div id="to-dt" class="dt-selector">
+      <div id="to-dt">
         <input type="text" id="datetime" />
       </div>
 
       <div id="apply-btn" class="button">APPLY CUSTOM RANGE</div>
     </div>
 
+    <div class="add-favorite container active">
+      <h3>현재 시간대를 즐겨찾기에 저장</h3>
+      <p>MEMO</p>
+      <div id="memo">
+        <input type="text" class="memo-input" />
+      </div>
+
+      <div id="add-favorite-btn" class="button">SAVE</div>
+    </div>
+
+    <div class="list-favorite container active">
+      <h3>즐겨찾기 목록</h3>
+      <div id="list-favorite-items"></div>
+    </div>
+
+    <script src="favorites.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

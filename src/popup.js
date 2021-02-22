@@ -1,18 +1,30 @@
+class DateTimeFormatter {
+  static padTwoDigits(number) {
+    return number < 10 ? '0' + number : number;
+  }
+
+  static formatTimestampFull(timestamp) {
+    const date = new Date(timestamp);
+    const dateStr = `${date.getFullYear()}-${this.padTwoDigits(date.getMonth() + 1)}-${this.padTwoDigits(date.getDate())}`;
+    const timeStr = `${this.padTwoDigits(date.getHours())}:${this.padTwoDigits(date.getMinutes())}:${this.padTwoDigits(date.getSeconds())}`;
+    return `${dateStr} ${timeStr}`;
+  }
+
+  static formatTimestampShort(timestamp) {
+    const date = new Date(timestamp);
+    const dateStr = `${date.getFullYear() % 100}.${this.padTwoDigits(date.getMonth() + 1)}.${this.padTwoDigits(date.getDate())}`;
+    const timeStr = `${this.padTwoDigits(date.getHours())}:${this.padTwoDigits(date.getMinutes())}`;
+    return `${dateStr} ${timeStr}`;
+  }
+}
+
 class DateTimeSelctor {
   constructor(root) {
     this.root = root;
   }
 
-  padTwoDigits(number) {
-    return number < 10 ? '0' + number : number;
-  }
-
   setTimestamp(timestamp) {
-    const date = new Date(timestamp);
-
-    const dateStr = `${date.getFullYear()}-${this.padTwoDigits(date.getMonth() + 1)}-${this.padTwoDigits(date.getDate())}`;
-    const timeStr = `${this.padTwoDigits(date.getHours())}:${this.padTwoDigits(date.getMinutes())}:${this.padTwoDigits(date.getSeconds())}`;
-    this.root.querySelector('#datetime').value = `${dateStr} ${timeStr}`;
+    this.root.querySelector('#datetime').value = DateTimeFormatter.formatTimestampFull(timestamp);
   }
 
   getTimestamp() {
@@ -21,21 +33,64 @@ class DateTimeSelctor {
   }
 }
 
-function showError(message) {
-  document.querySelector('#error-msg').innerHTML = message;
-  document.querySelector('.selector').classList.remove('active');
-  document.querySelector('.error').classList.add('active');
-}
-
-
-(async () => {
+async function getURL() {
   let tabs = await browser.tabs.query({ currentWindow: true, active: true });
   if (tabs.length !== 1) {
     showError('Unable to determine current tab. Please try again.');
   }
 
-  const url = new URL(tabs[0].url);
-  if (url.host != 'app.datadoghq.com') {
+  return new URL(tabs[0].url);
+}
+
+async function setURL(address) {
+  let tabs = await browser.tabs.query({ currentWindow: true, active: true });
+  browser.tabs.update(tabs[0].id, { url: address });
+}
+
+async function applyTimeRange(fromTimestamp, toTimestamp) {
+  const url = await getURL();
+  url.searchParams.set('from_ts', fromTimestamp);
+  url.searchParams.set('to_ts', toTimestamp);
+  url.searchParams.set('live', 'false');
+  await setURL(url.href);
+}
+
+async function showFavorites() {
+  const root = document.querySelector('#list-favorite-items');
+  while (root.firstChild) {
+    root.removeChild(root.firstChild);
+  }
+
+  const favorites = await loadFavorites();
+  favorites.forEach((item) => {
+    const from = DateTimeFormatter.formatTimestampShort(item.from);
+    const to = DateTimeFormatter.formatTimestampShort(item.to);
+    let text = `${from} ~ ${to}`;
+    if (item.memo && item.memo !== '') {
+      text = `${text} (${item.memo})`;
+    }
+
+    const child = document.createElement('p');
+    child.classList.add('favorite-item');
+    child.appendChild(document.createTextNode(text));
+    child.onclick = () => {
+      applyTimeRange(item.from, item.to);
+    };
+    root.appendChild(child);
+  });
+}
+
+function showError(message) {
+  document.querySelector('#error-msg').appendChild(document.createTextNode(message));
+  document.querySelector('.selector').classList.remove('active');
+  document.querySelector('.add-favorite').classList.remove('active');
+  document.querySelector('.list-favorite').classList.remove('active');
+  document.querySelector('.error').classList.add('active');
+}
+
+(async () => {
+  const url = await getURL();
+  if (url.host !== 'app.datadoghq.com') {
     showError('You are not looking datadog page.');
   }
 
@@ -45,9 +100,14 @@ function showError(message) {
   toDTS.setTimestamp(parseInt(url.searchParams.get('to_ts')));
 
   document.querySelector('#apply-btn').onclick = () => {
-    url.searchParams.set('from_ts', fromDTS.getTimestamp());
-    url.searchParams.set('to_ts', toDTS.getTimestamp());
-    url.searchParams.set('live', 'false');
-    browser.tabs.update(tabs[0].id, { url: url.href });
+    applyTimeRange(fromDTS.getTimestamp(), toDTS.getTimestamp());
   };
+
+  document.querySelector('#add-favorite-btn').onclick = async () => {
+    const memo = document.querySelector('.memo-input').value;
+    await addFavorite(fromDTS.getTimestamp(), toDTS.getTimestamp(), memo || '');
+    await showFavorites();
+  };
+
+  await showFavorites();
 })();
